@@ -1,6 +1,6 @@
 // Классы для игры
-const Card = require('./Card.js');
-const Game = require('./Game.js');
+const Card = require('./classes/Card.js');
+const Game = require('./classes/Game.js');
 
 // Данные для колоды карт
 const suitsOfCards = require('./cards/suits_of_cards');
