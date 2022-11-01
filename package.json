@@ -1,4 +1,7 @@
 {
+  "name": "BlackJSack",
+  "version": "0.0.1",
+  "description": "Пишем игру в 21 на js",
   "dependencies": {
     "readline-sync": "^1.4.10"
   }
