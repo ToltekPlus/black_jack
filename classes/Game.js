@@ -40,10 +40,22 @@ class Game {
     }
 
     /**
-     * Показываем игроку его расклад
-     *
+     * Проверяет кол-во карт в колоде
      * Если количество карт меньше чем столько,
-     * сколько нужно участникам - показываем результат игры
+     * сколько нужно участникам - показывает результат игры
+     * 
+     * @param usersData 
+     * @param deck 
+     */
+    checkDeckCardsCount(usersData, deck) {
+        if (deck.length % this.countUsers === 0)
+            this.choiceAnAction(usersData, deck);
+        else
+            this.checkResult(usersData);
+    }
+
+    /**
+     * Показываем игроку его расклад
      *
      * @param usersData
      * @param deck
@@ -51,10 +63,7 @@ class Game {
     myHand(usersData, deck) {
         this.toOutput(this.cardsCalculate(usersData));
 
-        if (deck.length % this.countUsers === 0)
-            this.choiceAnAction(usersData, deck);
-        else
-            this.checkResult(usersData);
+        this.checkDeckCardsCount(usersData, deck);
     }
 
     /**
