@@ -23,7 +23,7 @@ class Game {
         let cards = deck.splice(0, (this.countUsers) * this.countCards);
         const usersData = this.playersAtTheTable(new Array(this.countUsers), cards);
 
-        this.myHand(usersData,  deck);
+        this.myHand(usersData, deck);
     }
 
     /**
@@ -58,14 +58,11 @@ class Game {
     }
 
     /**
-     * Готовим карты игрока и считаем сумму
-     *
-     * @param usersData
-     * @returns {{cards: string, sum: number}}
+     * Возвращает данные игрока
+     * 
+     * @param userData 
      */
-    cardsCalculate(usersData) {
-        // TODO декомпозировать
-        // TODO сделать реализацию, при которой игрок уже совершил перебор
+    fillPlayerHand(usersData) {
         let userData = usersData.filter(x => x.key === 0)[0];
 
         let hand = {
@@ -74,19 +71,32 @@ class Game {
         };
 
         userData.map(x => {
-            hand['cards'] += x.description +"\n";
+            hand['cards'] += x.description + "\n";
         })
         hand['sum'] = userData.sum;
         hand['key'] = userData.key;
+
+        return hand;
+    }
+
+    /**
+     * Готовим карты игрока и считаем сумму
+     *
+     * @param usersData
+     * @returns {{cards: string, sum: number}}
+     */
+    cardsCalculate(usersData) {
+        // TODO сделать реализацию, при которой игрок уже совершил перебор
+        let hand = this.fillPlayerHand(usersData);
 
         let result = this.checkingTheGameConditionsForUser(hand);
 
         if (result) {
             return result;
-        }
-        else {
+        } else {
             this.checkResult(usersData);
         }
+
     }
 
     /**
@@ -104,7 +114,7 @@ class Game {
      * Выводим результат
      * @param hand
      */
-    toOutput(hand){
+    toOutput(hand) {
         console.log('Вот ваши карты:');
         console.log(hand.cards);
 
@@ -135,14 +145,14 @@ class Game {
     optionallyRaffle(usersData, deck) {
         let cards = deck.splice(0, this.countUsers);
 
-        return this.distributionOfCards(usersData, cards,1);
+        return this.distributionOfCards(usersData, cards, 1);
     }
 
     /**
      * Результат игры
      * @param data
      */
-    checkResult (data) {
+    checkResult(data) {
         const sortable = this.sortableResult(data);
 
         for (const value of sortable) {
@@ -150,7 +160,8 @@ class Game {
             if (value.sum === this.BLACK_JACK) value.sum = '\x1b[36m' + value.sum + '\x1b[0m';
 
             console.log(value.person + '\t' + ' => ' + value.sum + ' очков');
-            for (const { description } of value) {
+            for (const { description }
+                of value) {
                 console.log(description);
             }
             console.log('\n');
@@ -190,11 +201,13 @@ Game.prototype.createUsersData = (usersData) => {
  * @param countCards
  * @returns {*}
  */
-Game.prototype.distributionOfCards = function (usersData, deck, countCards) {
+Game.prototype.distributionOfCards = function(usersData, deck, countCards) {
     for (let i = 0; i <= this.countUsers - 1; i++) {
         let newCard = deck.splice(0, countCards)
         usersData[i].push(...newCard);
-        usersData[i].sum += newCard[0].value;
+        for (let u = 0; u < countCards; u++) {
+            usersData[i].sum += newCard[u].value;
+        }
     }
 
     return this.checkingTheGameConditions(usersData);
