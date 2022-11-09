@@ -34,63 +34,61 @@ class Game {
      * @returns {*}
      */
     playersAtTheTable(usersData, cards) {
-        let createdUsersData = this.createUsersData(usersData);
+        let createdUsersData = this.createUsersData(usersData).value;
 
         return this.distributionOfCards(createdUsersData, cards, 2);
     }
 
     /**
      * Показываем игроку его расклад
-     *
      * Если количество карт меньше чем столько,
      * сколько нужно участникам - показываем результат игры
-     *
      * @param usersData
      * @param deck
      */
-    myHand(usersData, deck) {
-        this.toOutput(this.cardsCalculate(usersData));
+   cardChecker(usersData, deck) {
+    
+    if (deck.length % this.countUsers === 0)
+        this.choiceAnAction(usersData, deck);
+    else
+        this.checkResult(usersData);
+}
 
-        if (deck.length % this.countUsers === 0)
-            this.choiceAnAction(usersData, deck);
-        else
-            this.checkResult(usersData);
+/**
+ * Показываем игроку его расклад
+ *
+ * @param usersData
+ * @param deck
+ */
+myHand(usersData, deck) {
+    this.toOutput(this.cardsCalculate(usersData));  
+    this.cardChecker(usersData, deck);
+}
+
+/**
+ * Возвращает данные игрока
+ * 
+ * @param userData 
+ */
+cardsCalculate(usersData) {
+    let userData = usersData.filter(x => x.key === 0)[0];
+
+    let hand = {sum: '0'};
+    userData.map(x => {
+        hand['cards'] += x.description + "\n";});
+    hand['sum'] = userData.sum;
+    hand['key'] = userData.key;
+    let result = this.checkingTheGameConditionsForUser(hand);
+
+    if (result) {
+        return result;
+    } else {
+        this.checkResult(usersData);
     }
 
-    /**
-     * Готовим карты игрока и считаем сумму
-     *
-     * @param usersData
-     * @returns {{cards: string, sum: number}}
-     */
-    cardsCalculate(usersData) {
-        // TODO декомпозировать
-        // TODO сделать реализацию, при которой игрок уже совершил перебор
-        let userData = usersData.filter(x => x.key === 0)[0];
-
-        let hand = {
-            cards: "",
-            sum: 0
-        };
-
-        userData.map(x => {
-            hand['cards'] += x.description +"\n";
-        })
-        hand['sum'] = userData.sum;
-        hand['key'] = userData.key;
-
-        let result = this.checkingTheGameConditionsForUser(hand);
-
-        if (result) {
-            return result;
-        }
-        else {
-            this.checkResult(usersData);
-        }
-    }
+}
 
     /**
-     *
      * @param hand
      * @returns {boolean|*}
      */
