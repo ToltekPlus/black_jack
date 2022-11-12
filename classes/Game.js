@@ -23,7 +23,7 @@ class Game {
         let cards = deck.splice(0, (this.countUsers) * this.countCards);
         const usersData = this.playersAtTheTable(new Array(this.countUsers), cards);
 
-        this.myHand(usersData,  deck);
+        this.gameStatusCheck(usersData,  deck);
     }
 
     /**
@@ -40,6 +40,21 @@ class Game {
     }
 
     /**
+     * Проверяем игру на достающее наличие игроков и наличие самого игрока.
+     * Если все ок, то показываем игроку карты, нет - выводим результат игры
+     *
+     * @param usersData
+     * @param deck
+     */
+
+    gameStatusCheck(usersData, deck) {
+        let checker = [this.checkingTheGameConditionsCount(usersData), this.checkingTheGameConditionsBust(usersData)]
+        if (checker.includes(false) === true) {
+            this.checkResult(usersData)
+        } else {this.myHand(usersData, deck)}
+    }
+
+    /**
      * Показываем игроку его расклад
      *
      * Если количество карт меньше чем столько,
@@ -49,7 +64,7 @@ class Game {
      * @param deck
      */
     myHand(usersData, deck) {
-        this.toOutput(this.cardsCalculate(usersData));
+        this.toOutput(this.createPlayerHand(usersData));
 
         if (deck.length % this.countUsers === 0)
             this.choiceAnAction(usersData, deck);
@@ -57,16 +72,17 @@ class Game {
             this.checkResult(usersData);
     }
 
+
     /**
-     * Готовим карты игрока и считаем сумму
+     * Создаем структуру карт на руке у игрока
      *
      * @param usersData
      * @returns {{cards: string, sum: number}}
      */
-    cardsCalculate(usersData) {
-        // TODO декомпозировать
-        // TODO сделать реализацию, при которой игрок уже совершил перебор
+
+    createPlayerHand(usersData) {
         let userData = usersData.filter(x => x.key === 0)[0];
+
 
         let hand = {
             cards: "",
@@ -79,25 +95,30 @@ class Game {
         hand['sum'] = userData.sum;
         hand['key'] = userData.key;
 
-        let result = this.checkingTheGameConditionsForUser(hand);
-
-        if (result) {
-            return result;
-        }
-        else {
-            this.checkResult(usersData);
-        }
+        return hand
     }
 
     /**
+     * Проверяем кол-во игроков
      *
-     * @param hand
-     * @returns {boolean|*}
+     * @param usersData
+     * @returns {boolean}
      */
-    checkingTheGameConditionsForUser(hand) {
-        if (hand.sum > this.BLACK_JACK) return false;
+    checkingTheGameConditionsCount(usersData) {
+        return usersData.length !== 1;
+    }
 
-        return hand;
+
+    /**
+     * Проверяем игрока на перебор
+     *
+     * @param usersData
+     * @returns {*}
+     */
+
+    checkingTheGameConditionsBust(usersData) {
+        let userData = this.checkingTheGameConditions(usersData);
+        return userData.includes(usersData[0]);
     }
 
     /**
@@ -120,7 +141,7 @@ class Game {
     choiceAnAction(usersData, deck) {
         if (readlineSync.keyInYN('Here is the layout of your cards. Would you like another one?')) {
             let updatedUsersData = this.optionallyRaffle(usersData, deck);
-            this.myHand(updatedUsersData, deck);
+            this.gameStatusCheck(updatedUsersData, deck);
         } else {
             this.checkResult(usersData);
         }
@@ -154,6 +175,10 @@ class Game {
                 console.log(description);
             }
             console.log('\n');
+        }
+
+        if (data.length === 0) {
+            console.log("У всех игроков случился перебор")
         }
     }
 
@@ -194,7 +219,9 @@ Game.prototype.distributionOfCards = function (usersData, deck, countCards) {
     for (let i = 0; i <= this.countUsers - 1; i++) {
         let newCard = deck.splice(0, countCards)
         usersData[i].push(...newCard);
-        usersData[i].sum += newCard[0].value;
+        for (let u = 0; u < countCards; u++) {
+            usersData[i].sum += newCard[u].value;
+        }
     }
 
     return this.checkingTheGameConditions(usersData);
