@@ -12,5 +12,5 @@ const sortDeck = deck.deck();
 const shuffleDeck = deck.shuffleDeck(sortDeck);
 
 // Начинаем игру
-const game = new Game(5, 2);
+const game = new Game(2, 2);
 game.raffle(shuffleDeck)
